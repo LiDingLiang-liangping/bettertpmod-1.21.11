@@ -1,5 +1,6 @@
 package com.bettertp;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -11,10 +12,9 @@ public class WaypointScreen extends Screen {
     private final Screen parent;
     private TextFieldWidget nameField;
     private int selectedSlot = -1;
-    private int page = 0;
 
     protected WaypointScreen(Screen parent) {
-        super(Text.literal("标记点管理"));
+        super(Text.literal("Waypoint Manager"));
         this.parent = parent;
     }
 
@@ -24,94 +24,72 @@ public class WaypointScreen extends Screen {
         int cx = this.width / 2;
         int cy = this.height / 2;
 
-        // 模拟箱子GUI布局 - 3行9列
-        int startX = cx - 4 * 18 - 8;
-        int startY = cy - 3 * 18 - 10;
+        int startX = cx - 4 * 36;
+        int startY = cy - 60;
 
-        // 标题
-        context = null; // will be set in render
-
-        // 9个标记点槽位
         for (int i = 0; i < 9; i++) {
             int slotX = startX + (i % 9) * 36;
             int slotY = startY + (i / 9) * 36;
             final int idx = i;
 
-            // 这里简化显示，实际应该用自定义渲染
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("[" + (i+1) + "]"), btn -> {
+            boolean selected = (idx == selectedSlot);
+            String label = selected ? "[" + (i+1) + "]" : String.valueOf(i+1);
+            this.addDrawableChild(ButtonWidget.builder(Text.literal(label).formatted(selected ? Formatting.YELLOW : Formatting.WHITE), btn -> {
                 selectedSlot = idx;
                 init();
             }).dimensions(slotX, slotY, 32, 32).build());
         }
 
-        // 操作按钮区域
-        int btnY = cy + 80;
+        int btnY = cy + 60;
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("+ 添加").formatted(Formatting.GREEN), btn -> {
-            var buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
-            buf.writeInt(0);
-            buf.writeInt(-1);
-            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(BetterTPMod.WAYPOINT_ACTION_PACKET, buf);
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("+ Add").formatted(Formatting.GREEN), btn -> {
+            ClientPlayNetworking.send(new WaypointActionPayload(0, -1, ""));
             close();
-        }).dimensions(cx - 160, btnY, 100, 20).build());
+        }).dimensions(cx - 160, btnY, 80, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("重命名"), btn -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Rename"), btn -> {
             if (selectedSlot >= 0 && nameField != null && !nameField.getText().isEmpty()) {
-                var buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
-                buf.writeInt(1);
-                buf.writeInt(selectedSlot);
-                buf.writeString(nameField.getText());
-                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(BetterTPMod.WAYPOINT_ACTION_PACKET, buf);
+                ClientPlayNetworking.send(new WaypointActionPayload(1, selectedSlot, nameField.getText()));
                 close();
             }
-        }).dimensions(cx - 50, btnY, 80, 20).build());
+        }).dimensions(cx - 70, btnY, 80, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("删除").formatted(Formatting.RED), btn -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Delete").formatted(Formatting.RED), btn -> {
             if (selectedSlot >= 0) {
-                var buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
-                buf.writeInt(2);
-                buf.writeInt(selectedSlot);
-                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(BetterTPMod.WAYPOINT_ACTION_PACKET, buf);
+                ClientPlayNetworking.send(new WaypointActionPayload(2, selectedSlot, ""));
                 close();
             }
-        }).dimensions(cx + 40, btnY, 60, 20).build());
+        }).dimensions(cx + 20, btnY, 70, 20).build());
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("传送").formatted(Formatting.AQUA), btn -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Teleport").formatted(Formatting.AQUA), btn -> {
             if (selectedSlot >= 0) {
-                var buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
-                buf.writeInt(3);
-                buf.writeInt(selectedSlot);
-                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(BetterTPMod.WAYPOINT_ACTION_PACKET, buf);
+                ClientPlayNetworking.send(new WaypointActionPayload(3, selectedSlot, ""));
                 close();
             }
-        }).dimensions(cx + 110, btnY, 60, 20).build());
+        }).dimensions(cx + 100, btnY, 80, 20).build());
 
-        // 名称输入框
-        nameField = new TextFieldWidget(this.textRenderer, cx - 100, btnY + 30, 200, 20, Text.literal("输入新名称"));
+        nameField = new TextFieldWidget(this.textRenderer, cx - 100, btnY + 30, 200, 20, Text.literal("Enter name"));
         nameField.setMaxLength(32);
         if (selectedSlot >= 0) {
-            nameField.setText("标记点 " + (selectedSlot + 1));
+            nameField.setText("Waypoint " + (selectedSlot + 1));
         }
         this.addDrawableChild(nameField);
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("\u2190 返回"), btn -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("<- Back"), btn -> {
             client.setScreen(parent);
         }).dimensions(10, 10, 60, 20).build());
     }
 
-    private DrawContext context;
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.context = context;
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
         int cx = this.width / 2;
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("标记点管理 (最多9个)"), cx, 40, 0xFFFF55);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Waypoint Manager (Max 9)"), cx, 40, 0xFFFF55);
 
         if (selectedSlot >= 0) {
-            context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("已选择: 槽位 " + (selectedSlot + 1)).formatted(Formatting.YELLOW), cx, 60, 0xFFFFFF);
+            context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Selected: Slot " + (selectedSlot + 1)).formatted(Formatting.YELLOW), cx, 60, 0xFFFFFF);
         }
     }
 }

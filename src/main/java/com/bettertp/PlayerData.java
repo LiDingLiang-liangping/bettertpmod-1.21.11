@@ -38,7 +38,7 @@ public class PlayerData {
 
     public void addWaypoint(double x, double y, double z, String world) {
         if (waypoints.size() < 9) {
-            waypoints.add(new Waypoint("未命名", x, y, z, world));
+            waypoints.add(new Waypoint("Unnamed", x, y, z, world));
         }
     }
 
