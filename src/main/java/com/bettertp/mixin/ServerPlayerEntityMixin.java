@@ -1,20 +1,20 @@
 package com.bettertp.mixin;
 
 import com.bettertp.PlayerDataAttachment;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public class ServerPlayerEntityMixin {
 
-    @Inject(method = "onDeath", at = @At("HEAD"))
+    @Inject(method = "die", at = @At("HEAD"))
     private void onDeath(DamageSource source, CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        ServerPlayer player = (ServerPlayer) (Object) this;
         var data = PlayerDataAttachment.get(player);
-        data.setLastDeathLocation(player.getX(), player.getY(), player.getZ(), player.getWorld().getRegistryKey().getValue().toString());
+        data.setLastDeathLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
     }
 }

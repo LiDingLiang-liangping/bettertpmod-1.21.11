@@ -1,23 +1,23 @@
 package com.bettertp;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public record WaypointActionPayload(int action, int index, String name) implements CustomPayload {
-    public static final CustomPayload.Id<WaypointActionPayload> ID = new CustomPayload.Id<>(BetterTPMod.WAYPOINT_ACTION_ID);
-    public static final PacketCodec<PacketByteBuf, WaypointActionPayload> CODEC = PacketCodec.of(
-        (payload, buf) -> {
+public record WaypointActionPayload(int action, int index, String name) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<WaypointActionPayload> ID = new CustomPacketPayload.Type<>(BetterTPMod.WAYPOINT_ACTION_ID);
+    public static final StreamCodec<FriendlyByteBuf, WaypointActionPayload> CODEC = StreamCodec.of(
+        (buf, payload) -> {
             buf.writeInt(payload.action());
             buf.writeInt(payload.index());
-            buf.writeString(payload.name());
+            buf.writeUtf(payload.name());
         },
-        buf -> new WaypointActionPayload(buf.readInt(), buf.readInt(), buf.readString())
+        buf -> new WaypointActionPayload(buf.readInt(), buf.readInt(), buf.readUtf())
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

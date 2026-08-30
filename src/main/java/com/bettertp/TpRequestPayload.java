@@ -1,19 +1,19 @@
 package com.bettertp;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public record TpRequestPayload(String targetName) implements CustomPayload {
-    public static final CustomPayload.Id<TpRequestPayload> ID = new CustomPayload.Id<>(BetterTPMod.TP_REQUEST_ID);
-    public static final PacketCodec<PacketByteBuf, TpRequestPayload> CODEC = PacketCodec.of(
-        (payload, buf) -> buf.writeString(payload.targetName()),
-        buf -> new TpRequestPayload(buf.readString())
+public record TpRequestPayload(String targetName) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<TpRequestPayload> ID = new CustomPacketPayload.Type<>(BetterTPMod.TP_REQUEST_ID);
+    public static final StreamCodec<FriendlyByteBuf, TpRequestPayload> CODEC = StreamCodec.of(
+        (buf, payload) -> buf.writeUtf(payload.targetName()),
+        buf -> new TpRequestPayload(buf.readUtf())
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

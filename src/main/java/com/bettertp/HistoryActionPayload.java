@@ -1,19 +1,19 @@
 package com.bettertp;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public record HistoryActionPayload(int type) implements CustomPayload {
-    public static final CustomPayload.Id<HistoryActionPayload> ID = new CustomPayload.Id<>(BetterTPMod.HISTORY_ACTION_ID);
-    public static final PacketCodec<PacketByteBuf, HistoryActionPayload> CODEC = PacketCodec.of(
-        (payload, buf) -> buf.writeInt(payload.type()),
+public record HistoryActionPayload(int type) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<HistoryActionPayload> ID = new CustomPacketPayload.Type<>(BetterTPMod.HISTORY_ACTION_ID);
+    public static final StreamCodec<FriendlyByteBuf, HistoryActionPayload> CODEC = StreamCodec.of(
+        (buf, payload) -> buf.writeInt(payload.type()),
         buf -> new HistoryActionPayload(buf.readInt())
     );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }
