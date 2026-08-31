@@ -16,7 +16,7 @@ public class BetterTPClient implements ClientModInitializer {
             "key.bettertp.open_gui",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_O,
-            "key.categories.misc"
+            KeyMapping.Category.MISC
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
