@@ -88,7 +88,7 @@ public class WaypointScreen extends Screen {
         graphics.drawCenteredString(this.font, Component.literal("Waypoint Manager (Max 9)"), cx, 40, 0xFFFF55);
 
         if (selectedSlot >= 0) {
-            graphics.drawCenteredString(this.font, Component.literal("Selected: Slot " + (selectedSlot + 1)), cx, 60, CommonColors.WHITE);
+            graphics.drawCenteredString(this.font, Component.literal("Selected: Slot " + (selectedSlot + 1)), cx, 60, 0xFFFFFF);
         }
     }
 }

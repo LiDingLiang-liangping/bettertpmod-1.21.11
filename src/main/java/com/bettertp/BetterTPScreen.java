@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.CommonColors;
 
 public class BetterTPScreen extends Screen {
     private GuiMode mode = GuiMode.MAIN;
@@ -109,9 +108,9 @@ public class BetterTPScreen extends Screen {
         if (mode == GuiMode.MAIN) {
             graphics.drawCenteredString(this.font, Component.literal("* Better TP Main Menu *"), this.width / 2, this.height / 2 - 70, 0x55FF55);
         } else if (mode == GuiMode.TP_PLAYER) {
-            graphics.drawCenteredString(this.font, Component.literal("Select Player to Teleport"), this.width / 2, this.height / 2 - 90, CommonColors.WHITE);
+            graphics.drawCenteredString(this.font, Component.literal("Select Player to Teleport"), this.width / 2, this.height / 2 - 90, 0xFFFFFF);
         } else if (mode == GuiMode.HISTORY) {
-            graphics.drawCenteredString(this.font, Component.literal("Location History"), this.width / 2, this.height / 2 - 55, CommonColors.WHITE);
+            graphics.drawCenteredString(this.font, Component.literal("Location History"), this.width / 2, this.height / 2 - 55, 0xFFFFFF);
         }
     }
 

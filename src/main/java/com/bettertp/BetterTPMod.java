@@ -4,7 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.portal.TeleportTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,9 @@ public class BetterTPMod implements ModInitializer {
     public static final String MOD_ID = "bettertp";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public static final ResourceLocation TP_REQUEST_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "tp_request");
-    public static final ResourceLocation WAYPOINT_ACTION_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "waypoint_action");
-    public static final ResourceLocation HISTORY_ACTION_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "history_action");
+    public static final Identifier TP_REQUEST_ID = Identifier.fromNamespaceAndPath(MOD_ID, "tp_request");
+    public static final Identifier WAYPOINT_ACTION_ID = Identifier.fromNamespaceAndPath(MOD_ID, "waypoint_action");
+    public static final Identifier HISTORY_ACTION_ID = Identifier.fromNamespaceAndPath(MOD_ID, "history_action");
 
     @Override
     public void onInitialize() {
@@ -34,7 +35,7 @@ public class BetterTPMod implements ModInitializer {
                 if (target != null) {
                     PlayerData data = PlayerDataAttachment.get(player);
                     data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
-                    player.teleport(target.level(), target.getX(), target.getY(), target.getZ(), player.getYRot(), player.getXRot());
+                    player.teleport(new TeleportTransition(target.level(), target.position(), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
                 }
             });
         });
@@ -52,10 +53,10 @@ public class BetterTPMod implements ModInitializer {
                         if (payload.index() >= 0 && payload.index() < data.getWaypoints().size()) {
                             Waypoint wp = data.getWaypoints().get(payload.index());
                             data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
-                            var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, ResourceLocation.parse(wp.world));
+                            var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(wp.world));
                             var targetWorld = player.level().getServer().getLevel(worldKey);
                             if (targetWorld != null) {
-                                player.teleport(targetWorld, wp.x, wp.y, wp.z, player.getYRot(), player.getXRot());
+                                player.teleport(new TeleportTransition(targetWorld, new net.minecraft.world.phys.Vec3(wp.x, wp.y, wp.z), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
                             }
                         }
                     }
@@ -68,20 +69,20 @@ public class BetterTPMod implements ModInitializer {
                 ServerPlayer player = context.player();
                 if (player == null) return;
                 PlayerData data = PlayerDataAttachment.get(player);
-                if (payload.type() == 0 && data.getLastLocation() != null) {
+                if (payload.actionType() == 0 && data.getLastLocation() != null) {
                     Location loc = data.getLastLocation();
                     data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
-                    var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, ResourceLocation.parse(loc.world));
+                    var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(loc.world));
                     var targetWorld = player.level().getServer().getLevel(worldKey);
                     if (targetWorld != null) {
-                        player.teleport(targetWorld, loc.x, loc.y, loc.z, player.getYRot(), player.getXRot());
+                        player.teleport(new TeleportTransition(targetWorld, new net.minecraft.world.phys.Vec3(loc.x, loc.y, loc.z), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
                     }
-                } else if (payload.type() == 1 && data.getLastDeathLocation() != null) {
+                } else if (payload.actionType() == 1 && data.getLastDeathLocation() != null) {
                     Location loc = data.getLastDeathLocation();
-                    var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, ResourceLocation.parse(loc.world));
+                    var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(loc.world));
                     var targetWorld = player.level().getServer().getLevel(worldKey);
                     if (targetWorld != null) {
-                        player.teleport(targetWorld, loc.x, loc.y, loc.z, player.getYRot(), player.getXRot());
+                        player.teleport(new TeleportTransition(targetWorld, new net.minecraft.world.phys.Vec3(loc.x, loc.y, loc.z), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
                     }
                 }
             });
