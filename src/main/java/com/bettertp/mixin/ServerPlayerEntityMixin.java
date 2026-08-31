@@ -15,6 +15,6 @@ public class ServerPlayerEntityMixin {
     private void onDeath(DamageSource source, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer) (Object) this;
         var data = PlayerDataAttachment.get(player);
-        data.setLastDeathLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
+        data.setLastDeathLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().identifier().toString());
     }
 }

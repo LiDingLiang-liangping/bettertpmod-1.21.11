@@ -12,7 +12,7 @@ public class BetterTPClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        openGuiKey = KeyBindingHelper.registerKeyMapping(new KeyMapping(
+        openGuiKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.bettertp.open_gui",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_O,

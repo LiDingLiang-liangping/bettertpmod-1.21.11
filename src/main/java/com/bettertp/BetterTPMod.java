@@ -34,7 +34,7 @@ public class BetterTPMod implements ModInitializer {
                 ServerPlayer target = context.server().getPlayerList().getPlayerByName(payload.targetName());
                 if (target != null) {
                     PlayerData data = PlayerDataAttachment.get(player);
-                    data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
+                    data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().identifier().toString());
                     player.teleport(new TeleportTransition(target.level(), target.position(), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
                 }
             });
@@ -46,13 +46,13 @@ public class BetterTPMod implements ModInitializer {
                 if (player == null) return;
                 PlayerData data = PlayerDataAttachment.get(player);
                 switch (payload.action()) {
-                    case 0 -> data.addWaypoint(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
+                    case 0 -> data.addWaypoint(player.getX(), player.getY(), player.getZ(), player.level().dimension().identifier().toString());
                     case 1 -> data.renameWaypoint(payload.index(), payload.name());
                     case 2 -> data.removeWaypoint(payload.index());
                     case 3 -> {
                         if (payload.index() >= 0 && payload.index() < data.getWaypoints().size()) {
                             Waypoint wp = data.getWaypoints().get(payload.index());
-                            data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
+                            data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().identifier().toString());
                             var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(wp.world));
                             var targetWorld = player.level().getServer().getLevel(worldKey);
                             if (targetWorld != null) {
@@ -71,7 +71,7 @@ public class BetterTPMod implements ModInitializer {
                 PlayerData data = PlayerDataAttachment.get(player);
                 if (payload.actionType() == 0 && data.getLastLocation() != null) {
                     Location loc = data.getLastLocation();
-                    data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().location().toString());
+                    data.setLastLocation(player.getX(), player.getY(), player.getZ(), player.level().dimension().identifier().toString());
                     var worldKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(loc.world));
                     var targetWorld = player.level().getServer().getLevel(worldKey);
                     if (targetWorld != null) {
